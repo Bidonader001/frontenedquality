@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#212122" />
+  <title>Q AI Station · Quality</title>
+  <link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/assets/brand/favicon-64.png" sizes="64x64" type="image/png" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Non-blocking so an offline kiosk paints at once and falls back to the local Montserrat. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="/css/station.css?v=2" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-screen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="12.5" rx="2" />
+      <path d="M12 16.5V20M8.5 20h7" />
+    </symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="2.75" width="10" height="18.5" rx="2.5" />
+      <path d="M11 17.75h2" />
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.75 12C4.9 8 8.1 6 12 6s7.1 2 9.25 6c-2.15 4-5.35 6-9.25 6s-7.1-2-9.25-6z" />
+      <circle cx="12" cy="12" r="2.75" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.25 12.25l2.5 2.5 5-5.25" />
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3.5 8.5a2 2 0 0 1 2-2h2l1.5-2h6l1.5 2h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </symbol>
+  </svg>
+
+  <div class="station-shell">
+    <header class="station-header">
+      <div class="station-brand">
+        <img class="station-logo" src="/assets/brand/quality-logo-on-dark.png" width="1200" height="347" alt="Quality" />
+        <h1 class="station-product"><span class="station-product__name" data-app-name>Q AI</span> <span class="station-product__sub">station</span></h1>
+      </div>
+      <div class="station-header__meta">
+        <span id="station-live-tag" class="live-tag"><span class="live-dot"></span> Live</span>
+        <time id="station-clock" class="station-clock">--:--</time>
+      </div>
+    </header>
+
+    <main class="station-main">
+      <section class="station-stage" aria-label="Camera">
+        <div class="station-frame">
+          <div class="station-frame__inner">
+            <div class="station-placeholder" aria-hidden="true">
+              <svg class="icon"><use href="#i-camera"></use></svg>
+              <span>Camera preview</span>
+            </div>
+            <video id="station-video" autoplay playsinline muted></video>
+          </div>
+        </div>
+      </section>
+
+      <aside class="station-panel" aria-label="Your status">
+        <div class="station-identity">
+          <p class="station-state">
+            <span class="station-state__dot" aria-hidden="true"></span>
+            <span class="station-state__text state-starting">Starting up</span>
+            <span class="station-state__text state-waiting">Standby</span>
+            <span class="station-state__text state-unknown">Not recognized</span>
+            <span class="station-state__text state-calibrating">Calibrating</span>
+            <span class="station-state__text state-verified">Verified</span>
+            <span class="station-state__text state-offline">Reconnecting</span>
+            <span class="station-state__text state-error">Unavailable</span>
+          </p>
+          <h2 id="station-employee" class="station-name">Waiting for employee…</h2>
+          <p id="station-hint" class="station-hint">Look at the camera to be recognized automatically.</p>
+        </div>
+
+        <div class="station-stats">
+          <div class="station-stat">
+            <span class="station-stat__icon" aria-hidden="true"><svg class="icon"><use href="#i-screen"></use></svg></span>
+            <div class="station-stat__body">
+              <span class="station-stat__label">At PC</span>
+              <strong id="station-at-pc" class="station-stat__value">—</strong>
+            </div>
+          </div>
+          <div class="station-stat">
+            <span class="station-stat__icon" aria-hidden="true"><svg class="icon"><use href="#i-check"></use></svg></span>
+            <div class="station-stat__body">
+              <span class="station-stat__label">Work status</span>
+              <strong id="station-work" class="station-stat__value">—</strong>
+            </div>
+          </div>
+          <div class="station-stat">
+            <span class="station-stat__icon" aria-hidden="true"><svg class="icon"><use href="#i-eye"></use></svg></span>
+            <div class="station-stat__body">
+              <span class="station-stat__label">Attention</span>
+              <strong id="station-attention" class="station-stat__value">—</strong>
+            </div>
+          </div>
+          <div class="station-stat">
+            <span class="station-stat__icon" aria-hidden="true"><svg class="icon"><use href="#i-phone"></use></svg></span>
+            <div class="station-stat__body">
+              <span class="station-stat__label">Phone</span>
+              <strong id="station-phone" class="station-stat__value">—</strong>
+              <small id="station-phone-detail" class="station-stat__detail"></small>
+            </div>
+          </div>
+        </div>
+
+        <p class="station-system">
+          <span class="station-system__dot" aria-hidden="true"></span>
+          <span class="station-system__label">System</span>
+          <strong id="station-model" class="station-status">Starting…</strong>
+        </p>
+      </aside>
+    </main>
+
+    <footer class="station-footer">
+      <p class="station-tagline">
+        <span class="station-switch" aria-hidden="true"></span>
+        <span class="station-tagline__text">SWITCH ON</span>
+      </p>
+      <p class="station-footnote">No sign-in needed. You are detected automatically.</p>
+    </footer>
+  </div>
+  <canvas id="station-canvas" hidden></canvas>
+  <script>window.STATION_TOKEN = "__STATION_TOKEN__";</script>
+  <script src="/js/station.js?v=12"></script>
+</body>
+</html>

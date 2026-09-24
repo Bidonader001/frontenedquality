@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Q AI · Quality</title>
+  <meta name="theme-color" content="#2d2d2d" />
+  <script>
+    (function () {
+      var theme = "dark";
+      try {
+        var saved = localStorage.getItem("quality_theme");
+        if (saved === "light" || saved === "dark") theme = saved;
+      } catch (e) {
+        /* storage blocked: keep the default theme */
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&amp;display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&amp;display=swap" /></noscript>
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/assets/brand/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png" />
+  <link rel="stylesheet" href="/css/style.css?v=15" />
+</head>
+<body>
+  <!-- Icon sprite: 24px line icons, stroke inherited from the using <svg class="icon"> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <style>:where(svg.icon){stroke:currentColor}</style>
+      <linearGradient id="q-grad" gradientUnits="userSpaceOnUse" x1="3" y1="12" x2="21" y2="12">
+        <stop offset="0" stop-color="#71cc98" />
+        <stop offset="1" stop-color="#02c4c4" />
+      </linearGradient>
+    </defs>
+
+    <!-- Navigation -->
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="8.5" r="3.25" />
+      <path d="M3.5 19.5c0-3.04 2.46-5.5 5.5-5.5s5.5 2.46 5.5 5.5" />
+      <path d="M15.5 5.35a3.25 3.25 0 0 1 0 6.3" />
+      <path d="M17 14.2c2.05.6 3.5 2.6 3.5 5.3" />
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 20h16" />
+      <path d="M7 16.5v-5" />
+      <path d="M12 16.5v-10" />
+      <path d="M17 16.5v-7" />
+    </symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 12h4l2.5-6.5 5 13 2.5-6.5h4" />
+    </symbol>
+    <symbol id="i-door" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 20.5V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5v16" />
+      <path d="M3.5 20.5h17" />
+      <circle cx="14.75" cy="12" r="0.6" />
+    </symbol>
+    <symbol id="i-user-plus" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="8.5" r="3.25" />
+      <path d="M4.5 19.5c0-3.04 2.46-5.5 5.5-5.5 1.3 0 2.5.45 3.44 1.2" />
+      <path d="M18 13.5v6M15 16.5h6" />
+    </symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.25l6.75 2.5v5.5c0 4.2-2.8 7.75-6.75 9.5-3.95-1.75-6.75-5.3-6.75-9.5v-5.5z" />
+      <path d="M9.25 12.25l2 2 3.75-3.75" />
+    </symbol>
+
+    <!-- Account and settings -->
+    <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 20H6.5A1.5 1.5 0 0 1 5 18.5v-13A1.5 1.5 0 0 1 6.5 4H10" />
+      <path d="M14.5 8l4 4-4 4" />
+      <path d="M18.5 12H9.5" />
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3.75" />
+      <path d="M12 2.75v1.9M12 19.35v1.9M2.75 12h1.9M19.35 12h1.9M5.46 5.46l1.34 1.34M17.2 17.2l1.34 1.34M5.46 18.54l1.34-1.34M17.2 6.8l1.34-1.34" />
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19.5 14.2A7.75 7.75 0 0 1 9.8 4.5a7.75 7.75 0 1 0 9.7 9.7z" />
+    </symbol>
+    <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.5 4.5h6v6" />
+      <path d="M19.5 4.5L11 13" />
+      <path d="M17.5 13.5v5a1.5 1.5 0 0 1-1.5 1.5H6a1.5 1.5 0 0 1-1.5-1.5V8.5A1.5 1.5 0 0 1 6 7h5" />
+    </symbol>
+
+    <!-- Actions -->
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19.25 12A7.25 7.25 0 1 1 12 4.75" />
+      <path d="M9.5 2.25l2.5 2.5-2.5 2.5" />
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 4v10.5" />
+      <path d="M7.75 10.25L12 14.5l4.25-4.25" />
+      <path d="M5 19.5h14" />
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.5 3H7.5A1.5 1.5 0 0 0 6 4.5v15A1.5 1.5 0 0 0 7.5 21h9a1.5 1.5 0 0 0 1.5-1.5V7.5z" />
+      <path d="M13.5 3v4.5H18" />
+      <path d="M9 12.5h6M9 16h4" />
+    </symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5" />
+      <path d="M11 6l-6 6 6 6" />
+    </symbol>
+
+    <!-- Devices and media -->
+    <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.5 7.5h2.75L9 5h6l1.75 2.5h2.75A1.5 1.5 0 0 1 21 9v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18V9a1.5 1.5 0 0 1 1.5-1.5z" />
+      <circle cx="12" cy="13.25" r="3.5" />
+    </symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="2.75" width="10" height="18.5" rx="2.25" />
+      <path d="M11 18h2" />
+    </symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="12.5" rx="2" />
+      <path d="M12 16.5V20M8.5 20h7" />
+    </symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.5 12C4.5 8 8 5.5 12 5.5s7.5 2.5 9.5 6.5c-2 4-5.5 6.5-9.5 6.5S4.5 16 2.5 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </symbol>
+
+    <!-- States -->
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.75" />
+      <path d="M12 7.5V12l3 1.75" />
+    </symbol>
+    <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5v8" />
+      <path d="M7.05 6.55a7.5 7.5 0 1 0 9.9 0" />
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="10.5" width="14" height="10" rx="2" />
+      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+      <path d="M12 14.5v2" />
+    </symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="10.5" width="14" height="10" rx="2" />
+      <path d="M8 10.5V8a4 4 0 0 1 7.75-1.4" />
+      <path d="M12 14.5v2" />
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12.5l4.5 4.5 9.5-10" />
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+    </symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9.75a13 13 0 0 1 18 0" />
+      <path d="M6.25 13.25a8.25 8.25 0 0 1 11.5 0" />
+      <path d="M9.5 16.6a3.75 3.75 0 0 1 5 0" />
+      <circle cx="12" cy="19.6" r="0.6" />
+    </symbol>
+  </svg>
+
+  <!-- Sign-in (staff only) -->
+  <div id="login-screen" class="login-screen">
+    <section class="login-panel" aria-label="About Q AI" data-app-name-label="About">
+      <img class="login-panel-logo" src="/assets/brand/quality-logo-on-dark.png" alt="Quality" width="1200" height="347" />
+      <div class="login-panel-copy">
+        <p class="login-headline">Presence and door access, in one place.</p>
+        <p class="login-lede"><span data-app-name>Q AI</span> shows who is at their desk, keeps the daily reports and opens the door for the right faces.</p>
+      </div>
+      <img class="login-emblem" src="/assets/brand/quality-emblem-on-dark.png" alt="" width="900" height="449" />
+    </section>
+
+    <div class="login-main">
+      <div class="login-card">
+        <div class="login-brand">
+          <h1>Sign in to <span data-app-name>Q AI</span></h1>
+          <p class="login-sub">Use your staff account.</p>
+        </div>
+        <div class="login-roles">
+          <span class="role-chip">Admin</span>
+          <span class="role-chip">HR enrollment</span>
+        </div>
+        <p class="login-note">Employees don't sign in here. The station page on their PC works without a password.</p>
+        <form id="login-form" class="login-form" autocomplete="on">
+          <label for="login-user">Username</label>
+          <input id="login-user" type="text" placeholder="admin" autocomplete="username" required />
+          <label for="login-pass">Password</label>
+          <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          <button id="btn-login" type="submit" class="primary login-submit">Sign in</button>
+          <p class="login-enter-hint">Press <kbd>Enter</kbd> to sign in</p>
+        </form>
+        <p id="login-status" class="status login-status" role="alert"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="app hidden" id="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="/assets/brand/quality-logo-on-dark.png" alt="Quality" width="1200" height="347" />
+        <span class="brand-product" data-app-name>Q AI</span>
+        <span class="brand-sub">Workforce &amp; Access</span>
+      </div>
+
+      <nav aria-label="Main">
+        <button type="button" class="nav-btn admin-only active" data-page="employees"><svg class="icon" aria-hidden="true"><use href="#i-users"></use></svg> Employees</button>
+        <button type="button" class="nav-btn admin-only" data-page="reports"><svg class="icon" aria-hidden="true"><use href="#i-chart"></use></svg> Daily reports</button>
+        <button type="button" class="nav-btn admin-only" data-page="logs"><svg class="icon" aria-hidden="true"><use href="#i-activity"></use></svg> Activity log</button>
+        <button type="button" class="nav-btn admin-only" data-page="door"><svg class="icon" aria-hidden="true"><use href="#i-door"></use></svg> Door lock</button>
+        <button type="button" class="nav-btn assigner-only hidden" data-page="enroll"><svg class="icon" aria-hidden="true"><use href="#i-user-plus"></use></svg> Enroll employees</button>
+        <button type="button" class="nav-btn admin-only" data-page="admin"><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg> Admin users</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="btn-theme-toggle" type="button" class="theme-switch" role="switch" aria-checked="false" aria-label="Light theme">
+          <svg class="icon" aria-hidden="true"><use href="#i-moon"></use></svg>
+          <span class="theme-switch__track" aria-hidden="true"><span class="theme-switch__knob"></span></span>
+          <svg class="icon" aria-hidden="true"><use href="#i-sun"></use></svg>
+        </button>
+
+        <div class="user-chip" id="user-chip">
+          <span id="user-avatar" class="avatar" aria-hidden="true"></span>
+          <div class="user-meta">
+            <span id="user-name">—</span>
+            <small id="user-role">—</small>
+          </div>
+          <button id="btn-logout" type="button" class="ghost small"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg> Sign out</button>
+        </div>
+
+        <a class="dev-link" href="/docs" target="_blank" rel="noopener">Developer API <svg class="icon" aria-hidden="true"><use href="#i-external"></use></svg></a>
+      </div>
+    </aside>
+
+    <main class="content">
+      <!-- Employees (admin landing page) -->
+      <section id="page-employees" class="page admin-only active">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Workforce</span>
+            <h2>Employees</h2>
+            <p class="page-desc">Presence and screen focus for everyone enrolled. The camera identifies who is at each desk.</p>
+          </div>
+        </header>
+
+        <div class="kpi-grid">
+          <div class="stat-card muted">
+            <span class="label">Enrolled</span>
+            <strong id="emp-kpi-enrolled">—</strong>
+          </div>
+          <div class="stat-card muted">
+            <span class="label">Live now</span>
+            <strong id="emp-kpi-live">—</strong>
+          </div>
+          <div class="stat-card muted">
+            <span class="label">Active today</span>
+            <strong id="emp-kpi-active">—</strong>
+          </div>
+          <div class="stat-card muted">
+            <span class="label">Avg. screen focus</span>
+            <strong id="emp-kpi-focus">—</strong>
+          </div>
+        </div>
+
+        <div class="card" id="employees-overview-card">
+          <div class="card-head">
+            <h3 class="card-title">Daily overview</h3>
+            <div class="toolbar-right">
+              <label for="employees-date">Date</label>
+              <input id="employees-date" type="date" />
+              <button id="btn-refresh-employees" type="button" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Refresh</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Employee</th>
+                  <th scope="col" class="num">Total time</th>
+                  <th scope="col" class="num">Screen</th>
+                  <th scope="col" class="num">Screen %</th>
+                  <th scope="col" class="num">Calling</th>
+                  <th scope="col" class="num">Texting</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="employees-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card hidden" id="employee-detail-card">
+          <button id="btn-close-detail" type="button" class="ghost small"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Back to list</button>
+          <div class="card-head">
+            <div>
+              <p class="card-title" id="detail-title">Employee detail</p>
+              <p class="status" id="detail-subtitle"></p>
+            </div>
+          </div>
+
+          <div class="card admin-live-card">
+            <div class="card-head">
+              <h3 class="card-title">Live camera</h3>
+              <div class="toolbar-right">
+                <button id="btn-admin-watch-live" type="button" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg> Watch live</button>
+                <button id="btn-admin-stop-live" type="button" class="ghost" disabled>Stop</button>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div>
+                <div class="preview-wrap admin-live-preview">
+                  <span id="admin-live-tag" class="live-tag"><span class="live-dot"></span> Live</span>
+                  <img id="admin-live-feed" alt="Employee live feed" hidden />
+                  <p id="admin-live-placeholder" class="status dim admin-live-placeholder">The employee must be signed in at the station with the live monitor running.</p>
+                </div>
+                <p id="admin-live-hint" class="status"></p>
+              </div>
+              <div class="detail-stats">
+                <div class="stat-card muted">
+                  <span class="label">At PC</span>
+                  <strong id="admin-live-presence">—</strong>
+                </div>
+                <div class="stat-card muted">
+                  <span class="label">Work status</span>
+                  <strong id="admin-live-work">—</strong>
+                </div>
+                <div class="stat-card muted">
+                  <span class="label">Attention</span>
+                  <strong id="admin-live-attention">—</strong>
+                </div>
+                <div class="stat-card muted">
+                  <span class="label">Phone</span>
+                  <strong id="admin-live-phone">—</strong>
+                </div>
+                <div class="stat-card muted">
+                  <span class="label">FPS</span>
+                  <strong id="admin-live-fps">—</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-stats">
+            <div class="stat-card muted">
+              <span class="label">Total monitored</span>
+              <strong id="detail-total">—</strong>
+            </div>
+            <div class="stat-card ok">
+              <span class="label">Screen time</span>
+              <strong id="detail-screen">—</strong>
+              <small id="detail-screen-pct"></small>
+            </div>
+            <div class="stat-card ok">
+              <span class="label">Calling</span>
+              <strong id="detail-call">—</strong>
+            </div>
+            <div class="stat-card ok">
+              <span class="label">Texting</span>
+              <strong id="detail-text">—</strong>
+            </div>
+            <div class="stat-card warn">
+              <span class="label">Phone visible</span>
+              <strong id="detail-phone">—</strong>
+            </div>
+            <div class="stat-card ok">
+              <span class="label">At PC</span>
+              <strong id="detail-at-pc">—</strong>
+              <small id="detail-at-pc-pct"></small>
+            </div>
+            <div class="stat-card warn">
+              <span class="label">Away</span>
+              <strong id="detail-away">—</strong>
+            </div>
+          </div>
+
+          <div class="card-head card-subhead">
+            <h3 class="card-title">Last 14 days</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col" class="num">Total</th>
+                  <th scope="col" class="num">Screen</th>
+                  <th scope="col" class="num">Screen %</th>
+                  <th scope="col" class="num">Calling</th>
+                  <th scope="col" class="num">Texting</th>
+                </tr>
+              </thead>
+              <tbody id="detail-history"></tbody>
+            </table>
+          </div>
+
+          <div class="card-head card-subhead">
+            <h3 class="card-title">Recent activity</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Timestamp</th>
+                  <th scope="col">State</th>
+                  <th scope="col">Attention</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">At PC</th>
+                  <th scope="col">On screen</th>
+                </tr>
+              </thead>
+              <tbody id="detail-logs"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily reports -->
+      <section id="page-reports" class="page admin-only">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Analytics</span>
+            <h2>Daily reports</h2>
+            <p class="page-desc">Screen focus, calls, texting and phone visibility per employee. A PDF is generated automatically each day.</p>
+            <p class="status dim">Reports follow payroll-safe rules: only identity-verified, sustained activity is saved. Review them before salary decisions.</p>
+          </div>
+          <div class="page-actions">
+            <label for="report-date">Date</label>
+            <input id="report-date" type="date" />
+            <div class="toolbar-right admin-only">
+              <button id="btn-generate-report" type="button" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-file"></use></svg> Generate PDF</button>
+              <button id="btn-download-report" type="button" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg> Download PDF</button>
+            </div>
+          </div>
+        </header>
+
+        <p id="report-status" class="status"></p>
+
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">Attendance &amp; breaks</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Employee</th>
+                  <th scope="col">Clock in</th>
+                  <th scope="col">Clock out</th>
+                  <th scope="col" class="num">Working hours</th>
+                  <th scope="col">Break in</th>
+                  <th scope="col">Break out</th>
+                  <th scope="col" class="num">Total break</th>
+                </tr>
+              </thead>
+              <tbody id="reports-timesheet-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">Activity</h3>
+            <span class="status dim">From live monitoring</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Employee</th>
+                  <th scope="col" class="num">Total time</th>
+                  <th scope="col" class="num">Screen time</th>
+                  <th scope="col" class="num">Screen %</th>
+                  <th scope="col" class="num">Calling</th>
+                  <th scope="col" class="num">Texting</th>
+                  <th scope="col" class="num">At PC</th>
+                  <th scope="col" class="num">Phone visible</th>
+                </tr>
+              </thead>
+              <tbody id="reports-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity log -->
+      <section id="page-logs" class="page">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Audit</span>
+            <h2>Activity log</h2>
+            <p class="page-desc">A time-ordered record of the state changes captured during live monitoring.</p>
+          </div>
+        </header>
+
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">Recent events</h3>
+            <div class="toolbar-right">
+              <span id="logs-live-tag" class="live-tag"><span class="live-dot"></span> Live</span>
+              <button id="btn-refresh-logs" type="button" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Refresh</button>
+            </div>
+          </div>
+          <div class="table-toolbar">
+            <div class="toolbar-left">
+              <label for="logs-employee-filter">Employee</label>
+              <select id="logs-employee-filter">
+                <option value="">All employees</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Timestamp</th>
+                  <th scope="col">Employee</th>
+                  <th scope="col">State</th>
+                  <th scope="col">Attention</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">At PC</th>
+                  <th scope="col">On screen</th>
+                  <th scope="col" class="num">FPS</th>
+                </tr>
+              </thead>
+              <tbody id="logs-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Door lock -->
+      <section id="page-door" class="page admin-only">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Access</span>
+            <h2 id="door-page-title">Door lock</h2>
+            <p id="door-page-desc" class="page-desc">Face unlock from the door camera and control of the ESP32 relay. Employees need an entry timer before they can enter.</p>
+          </div>
+        </header>
+
+        <div class="grid-2 door-stage door-admin-only">
+          <div class="card pass-hero" id="door-hero">
+            <div class="card-head">
+              <h3 class="card-title">Lock</h3>
+              <div class="device-pill door-admin-only" id="device-pill">
+                <span class="dot"></span>
+                <span id="device-label">ESP32 offline</span>
+              </div>
+            </div>
+            <h2 id="door-state-label">Locked</h2>
+            <p id="door-hint" class="status dim">Camera unlocks from outside. The inside button opens the door to leave.</p>
+            <div class="actions">
+              <div class="segmented" role="group" aria-label="Relay">
+                <button id="btn-relay-on" type="button" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-power"></use></svg> Turn on</button>
+                <button id="btn-relay-off" type="button" class="ghost">Turn off</button>
+              </div>
+              <button id="btn-open-door" type="button" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-unlock"></use></svg> Open door</button>
+            </div>
+            <p id="relay-status" class="status"></p>
+            <p id="open-status" class="status"></p>
+            <div class="door-ticks">
+              <div class="stat-card muted"><span class="label">Authorized</span><strong id="stat-authorized">—</strong></div>
+              <div class="stat-card muted"><span class="label">No door access</span><strong id="stat-pending">—</strong></div>
+              <div class="stat-card muted"><span class="label">Allowed today</span><strong id="stat-allowed">—</strong></div>
+              <div class="stat-card muted"><span class="label">Unlocks</span><strong id="stat-unlocks">—</strong></div>
+            </div>
+          </div>
+
+          <div class="card preview-card">
+            <div class="card-head">
+              <h3 class="card-title">Face scanner</h3>
+            </div>
+            <div class="preview-wrap" id="preview-wrap">
+              <span id="door-live-tag" class="live-tag visible hidden"><span class="live-dot"></span> Live</span>
+              <img id="ipcam" alt="Door camera" />
+              <div id="decision-banner" class="door-banner">Camera off</div>
+            </div>
+            <p id="camera-status" class="status dim">Start the scanner to unlock from the door camera.</p>
+            <div class="actions">
+              <button id="btn-start-check" type="button" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-camera"></use></svg> Start face unlock</button>
+              <button id="btn-stop-check" type="button" class="ghost" disabled>Stop</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card door-lower">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Who can enter</h3>
+              <p class="status dim door-admin-only">Enroll people in <strong>Admin users</strong>, then set each employee's <strong>entry timer</strong>. No timer means no entry.</p>
+            </div>
+            <button id="btn-refresh-people" type="button" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Refresh</button>
+          </div>
+          <div id="people-body" class="pass-list"></div>
+        </div>
+
+        <div class="card log-panel door-admin-only">
+          <div class="card-head">
+            <h3 class="card-title">Unlocks and checks</h3>
+            <button id="btn-refresh-log" type="button" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Refresh</button>
+          </div>
+          <div id="log-body" class="log-list"></div>
+        </div>
+
+        <section class="page-section door-admin-only">
+          <h3 class="section-heading">Door settings</h3>
+          <div class="grid-2">
+            <div class="card door-admin-only" id="camera-config-card">
+              <div class="card-head">
+                <h4 class="card-title">Door camera setup</h4>
+              </div>
+              <p class="status dim">Enter the IP camera address and login. These settings are saved on the server.</p>
+              <div class="form-grid">
+                <div>
+                  <label for="camera-host">Camera IP or URL</label>
+                  <input id="camera-host" type="text" placeholder="192.168.1.64" autocomplete="off" />
+                </div>
+                <div>
+                  <label for="camera-username">Username</label>
+                  <input id="camera-username" type="text" placeholder="admin" autocomplete="username" />
+                </div>
+                <div>
+                  <label for="camera-password">Password</label>
+                  <input id="camera-password" type="password" placeholder="Leave blank to keep saved password" autocomplete="current-password" />
+                </div>
+                <div>
+                  <label for="camera-snapshot-path">Snapshot path</label>
+                  <input id="camera-snapshot-path" type="text" placeholder="/cgi-bin/snapshot.cgi" autocomplete="off" />
+                </div>
+              </div>
+              <div class="actions">
+                <button type="button" id="btn-save-camera" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg> Save camera</button>
+                <button type="button" id="btn-test-camera" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-wifi"></use></svg> Test connection</button>
+              </div>
+              <p id="camera-config-status" class="status dim">Loading camera settings…</p>
+            </div>
+
+            <div class="card door-admin-only" id="door-schedule-card">
+              <div class="card-head">
+                <h4 class="card-title">Auto-unlock schedule</h4>
+              </div>
+              <p class="status dim">Optional building-wide hours; the relay locks again at the end. Each employee's <strong>entry timer</strong> still controls when their face can unlock the door.</p>
+              <p id="auto-unlock-live" class="schedule-live status dim">Loading schedule status…</p>
+              <label class="check-row">
+                <input type="checkbox" id="auto-unlock-enabled" checked />
+                Enable auto-unlock window
+              </label>
+              <div id="auto-unlock-fields">
+                <div class="form-grid">
+                  <div>
+                    <label for="auto-unlock-start">Start</label>
+                    <input id="auto-unlock-start" type="time" value="08:00" />
+                  </div>
+                  <div>
+                    <label for="auto-unlock-end">End</label>
+                    <input id="auto-unlock-end" type="time" value="18:00" />
+                  </div>
+                </div>
+                <p class="status dim">Days</p>
+                <div class="day-checks" id="auto-unlock-day-checks" role="group" aria-label="Days">
+                  <label><input type="checkbox" data-day="0" checked /> Mon</label>
+                  <label><input type="checkbox" data-day="1" checked /> Tue</label>
+                  <label><input type="checkbox" data-day="2" checked /> Wed</label>
+                  <label><input type="checkbox" data-day="3" checked /> Thu</label>
+                  <label><input type="checkbox" data-day="4" checked /> Fri</label>
+                  <label><input type="checkbox" data-day="5" /> Sat</label>
+                  <label><input type="checkbox" data-day="6" /> Sun</label>
+                </div>
+              </div>
+              <div class="actions">
+                <button type="button" id="btn-save-schedule" class="primary"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg> Save door schedule</button>
+              </div>
+              <p id="door-schedule-status" class="status dim"></p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- HR: enroll employees -->
+      <section id="page-enroll" class="page assigner-only hidden">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">People</span>
+            <h2>Enroll employees</h2>
+            <p class="page-desc">Enroll <strong>regular employees</strong> for the station and door. Managers, and anyone who already has door access, are enrolled or re-captured by an administrator.</p>
+          </div>
+        </header>
+
+        <div class="grid-2">
+          <div class="card form-card">
+            <div class="card-head">
+              <h3 class="card-title">New person</h3>
+            </div>
+            <label for="assigner-enroll-role">Role</label>
+            <select id="assigner-enroll-role">
+              <option value="employee">Employee — door hours apply</option>
+            </select>
+            <label for="assigner-employee-id">Employee ID</label>
+            <input id="assigner-employee-id" type="text" placeholder="E001" autocomplete="off" />
+            <label for="assigner-full-name">Full name</label>
+            <input id="assigner-full-name" type="text" placeholder="Ahmed Ali" autocomplete="off" />
+            <div class="card-head card-subhead">
+              <h4 class="card-title">Face enrollment</h4>
+            </div>
+            <div class="admin-capture-row">
+              <button type="button" id="btn-assigner-capture" class="ghost">Start guided capture</button>
+              <span id="assigner-capture-count" class="badge">0 / 5</span>
+            </div>
+            <p id="assigner-capture-hint" class="status dim">Capture 5 poses with the camera, then save the employee.</p>
+            <div class="actions">
+              <button type="button" id="btn-assigner-enroll" class="primary">Save employee</button>
+            </div>
+            <p id="assigner-enroll-status" class="status"></p>
+          </div>
+
+          <div class="card preview-card">
+            <div class="card-head">
+              <h3 class="card-title">Enrollment camera</h3>
+              <button type="button" id="btn-assigner-start-camera" class="ghost small"><svg class="icon" aria-hidden="true"><use href="#i-camera"></use></svg> Start camera</button>
+            </div>
+            <div class="admin-enroll-stage">
+              <video id="assigner-enroll-video" autoplay playsinline muted></video>
+              <div id="assigner-enroll-overlay" class="enroll-overlay hidden">
+                <p id="assigner-enroll-pose-text" class="enroll-pose-text">Look straight at the camera</p>
+                <p id="assigner-enroll-pose-step" class="enroll-pose-step">Pose 1 of 5</p>
+              </div>
+            </div>
+            <canvas id="assigner-enroll-canvas" hidden></canvas>
+            <p id="assigner-camera-status" class="status dim">Allow camera access when prompted.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">Enrolled employees</h3>
+            <button type="button" id="btn-assigner-refresh-list" class="ghost"><svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg> Refresh</button>
+          </div>
+          <div id="assigner-employees-list" class="pass-list"></div>
+        </div>
+      </section>
+
+      <!-- Admin users -->
+      <section id="page-admin" class="page admin-only">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Access control</span>
+            <h2>Admin users</h2>
+            <p class="page-desc">Create accounts and enroll employee faces in one step. Employee users need 5 face captures.</p>
+          </div>
+        </header>
+
+        <div class="grid-2">
+          <div class="card form-card">
+            <p id="re-enroll-banner" class="status banner-warn hidden"></p>
+            <div class="card-head">
+              <h3 class="card-title">New user</h3>
+            </div>
+            <label for="new-username">Username</label>
+            <input id="new-username" type="text" autocomplete="off" />
+            <label for="new-password">Password</label>
+            <input id="new-password" type="password" autocomplete="new-password" />
+            <label for="new-role">Role</label>
+            <select id="new-role">
+              <option value="employee">Employee — door hours apply</option>
+              <option value="manager">Manager — door access 24/7</option>
+              <option value="assigner">HR — enroll employees only</option>
+              <option value="admin">Admin</option>
+            </select>
+            <div id="employee-fields">
+              <label for="new-employee-id">Employee ID</label>
+              <input id="new-employee-id" type="text" placeholder="E001" autocomplete="off" />
+              <label for="new-full-name">Full name</label>
+              <input id="new-full-name" type="text" placeholder="Ahmed Ali" autocomplete="off" />
+              <div class="card-head card-subhead">
+                <h4 class="card-title">Face enrollment</h4>
+              </div>
+              <div class="admin-capture-row">
+                <button type="button" id="btn-admin-capture" class="ghost">Start guided capture</button>
+                <span id="admin-capture-count" class="badge">0 / 5</span>
+              </div>
+              <p id="admin-capture-hint" class="status dim">The camera will speak instructions and capture 5 poses automatically.</p>
+            </div>
+            <div class="actions">
+              <button type="button" id="btn-create-user" class="primary">Create user</button>
+            </div>
+            <p id="admin-status" class="status"></p>
+          </div>
+
+          <div class="card preview-card">
+            <div id="admin-camera-wrap">
+              <div class="card-head">
+                <h3 class="card-title">Enrollment camera</h3>
+                <button type="button" id="btn-admin-start-camera" class="ghost small"><svg class="icon" aria-hidden="true"><use href="#i-camera"></use></svg> Start camera</button>
+              </div>
+              <div class="admin-enroll-stage">
+                <video id="admin-enroll-video" autoplay playsinline muted></video>
+                <div id="enroll-overlay" class="enroll-overlay hidden">
+                  <p id="enroll-pose-text" class="enroll-pose-text">Look straight at the camera</p>
+                  <p id="enroll-pose-step" class="enroll-pose-step">Pose 1 of 5</p>
+                </div>
+              </div>
+              <canvas id="admin-enroll-canvas" hidden></canvas>
+              <p id="admin-camera-status" class="status dim">Allow camera access when prompted.</p>
+            </div>
+            <div class="card-head card-subhead">
+              <h3 class="card-title">Registered users</h3>
+            </div>
+            <ul id="users-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live monitor (not in the nav; kept for the station session view) -->
+      <section id="page-monitor" class="page">
+        <header class="page-header">
+          <div class="page-heading">
+            <span class="eyebrow">Real-time</span>
+            <h2>Live monitor</h2>
+            <p class="page-desc">Admin view of the monitoring station. Employees are tracked automatically at <code>/station</code>, with no sign-in.</p>
+            <p class="status dim">Live view is approximate. Daily reports only record verified, sustained activity (payroll-safe).</p>
+          </div>
+          <div class="page-actions">
+            <p id="monitor-session-badge" class="session-badge hidden"></p>
+          </div>
+        </header>
+
+        <div class="grid-2">
+          <div class="card preview-card">
+            <div class="card-head">
+              <h3 class="card-title">Camera feed</h3>
+            </div>
+            <div class="preview-wrap">
+              <span id="live-tag" class="live-tag"><span class="live-dot"></span> Live</span>
+              <video id="monitor-video" autoplay playsinline muted></video>
+              <img id="monitor-preview" alt="Annotated preview" hidden />
+            </div>
+            <canvas id="monitor-canvas" hidden></canvas>
+            <p id="monitor-hint" class="status">Session starts automatically after sign-in.</p>
+          </div>
+
+          <div class="cards-stack">
+            <div class="stat-card muted" id="card-work">
+              <span class="label">Work status</span>
+              <strong id="val-work">—</strong>
+              <small id="val-work-detail"></small>
+            </div>
+            <div class="stat-card muted" id="card-identity">
+              <span class="label">Identity</span>
+              <strong id="val-name">—</strong>
+              <small id="val-id-conf"></small>
+            </div>
+            <div class="stat-card muted" id="card-presence">
+              <span class="label">At PC</span>
+              <strong id="val-at-pc">—</strong>
+              <small id="val-at-pc-detail"></small>
+            </div>
+            <div class="stat-card muted" id="card-attention">
+              <span class="label">Screen attention</span>
+              <strong id="val-attention">—</strong>
+              <small id="val-attention-detail"></small>
+            </div>
+            <div class="stat-card muted" id="card-phone">
+              <span class="label">Phone activity</span>
+              <strong id="val-phone">—</strong>
+              <small id="val-phone-detail"></small>
+            </div>
+            <div class="stat-card muted" id="card-session">
+              <span class="label">Session</span>
+              <strong id="val-away">—</strong>
+              <small id="val-session-detail"></small>
+            </div>
+            <div class="stat-card muted">
+              <span class="label">Performance</span>
+              <strong id="val-fps">—</strong>
+              <small id="val-model-status">Standby</small>
+            </div>
+            <div class="actions timesheet-actions employee-only">
+              <button id="btn-break-start" type="button" class="ghost">Start break</button>
+              <button id="btn-break-end" type="button" class="ghost hidden">End break</button>
+              <button id="btn-clock-out" type="button" class="ghost">Clock out</button>
+            </div>
+            <p id="timesheet-status" class="status dim employee-only"></p>
+            <div class="actions">
+              <button id="btn-start-monitor" type="button" class="primary">Start session</button>
+              <button id="btn-stop-monitor" type="button" class="ghost" disabled>Stop</button>
+              <button id="btn-recalibrate" type="button" class="ghost" disabled>Recalibrate</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/app.js?v=36"></script>
+  <script src="/js/door.js?v=25"></script>
+</body>
+</html>

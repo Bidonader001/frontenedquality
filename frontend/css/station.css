@@ -1,0 +1,944 @@
+/* ==========================================================================
+   Q AI Station · Quality
+   Employee kiosk: full screen on an employee PC, always dark, readable
+   from 2 metres. Self-contained (does not load /css/style.css).
+
+   State hooks (presentation only):
+   - body[data-state="waiting|unknown|calibrating|verified|error"], set by station.js
+     (no attribute yet = starting up; "waiting" is also set when a retry is
+     scheduled before any result, so the offline rules show "Reconnecting";
+     "error" = station token missing, no retry)
+   - #station-live-tag.visible while the WebSocket is open
+   The brand gradient means "on": it appears only when the person is verified.
+   ========================================================================== */
+
+/* ---- Fonts --------------------------------------------------------------- */
+@font-face {
+  font-family: "Cabin";
+  src: url("/assets/fonts/Cabin-Variable.ttf") format("truetype");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Local Montserrat Regular: fallback when Google Fonts is unreachable (offline kiosks). */
+@font-face {
+  font-family: "Montserrat Local";
+  src: url("/assets/fonts/Montserrat-Regular.ttf") format("truetype");
+  font-weight: 300 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Chillax is used only for the "SWITCH ON" tagline. */
+@font-face {
+  font-family: "Chillax";
+  src: url("/assets/fonts/Chillax-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Tokens (brief section 4, dark theme; the station is always dark) ---- */
+:root {
+  /* Brand constants */
+  --q-night: #2d2d2d;
+  --q-smoke: #f4f4f5;
+  --q-green: #71cc98;
+  --q-teal: #02c4c4;
+  --q-gradient: linear-gradient(90deg, #71cc98 0%, #02c4c4 100%);
+  --on-gradient: #2d2d2d;
+  --sidebar-bg: #2d2d2d;
+  --sidebar-bg-2: #363637;
+  --sidebar-border: #3f3f41;
+  --sidebar-text: #f4f4f5;
+  --sidebar-muted: #b3b3b8;
+
+  /* Dark theme */
+  --bg: #212122;
+  --surface: #2d2d2d;
+  --surface-2: #343436;
+  --surface-3: #3c3c3f;
+  --field: #252526;
+  --border: #3f3f42;
+  --border-strong: #58585d;
+  --text: #f4f4f5;
+  --text-muted: #b3b3b8;
+  --text-dim: #9a9aa0;
+  --accent-text: #02c4c4;
+  --ok: #71cc98;
+  --ok-bg: rgba(113, 204, 152, .14);
+  --live: #02c4c4;
+  --live-bg: rgba(2, 196, 196, .14);
+  --warn: #f2b84b;
+  --warn-bg: rgba(242, 184, 75, .14);
+  --bad: #ff9090;
+  --bad-bg: rgba(255, 122, 122, .14);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .25);
+  --shadow-2: 0 16px 40px rgba(0, 0, 0, .35);
+  --video-bg: #161617;
+  color-scheme: dark;
+
+  /* Shared scales */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 24px;
+  --fs-2xl: 34px;
+  --fs-kpi: 30px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+
+  --font-display: "Montserrat", "Montserrat Local", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Cabin", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-tagline: "Chillax", "Cabin", "Segoe UI", system-ui, sans-serif;
+
+  /* Station-only */
+  --gutter: 40px;
+  --r-frame: 28px;
+  --ring-width: 5px;
+  --ring-unknown: rgba(242, 184, 75, .55);
+  --glow-green: rgba(113, 204, 152, .24);
+  --glow-teal: rgba(2, 196, 196, .30);
+}
+
+/* ---- Base ---------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+[hidden],
+.hidden {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--q-teal);
+  outline-offset: 2px;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  vertical-align: -3px;
+}
+
+/* ---- Shell: header / main / footer fill exactly one screen --------------- */
+.station-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100vh;
+  height: 100dvh;
+  padding-inline: var(--gutter);
+}
+
+/* ---- Header -------------------------------------------------------------- */
+.station-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding-block: 24px 20px;
+}
+
+.station-brand {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.station-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+
+.station-product {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 2px 0 2px 20px;
+  border-left: 1px solid var(--border);
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.station-product__name {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.station-product__sub {
+  font-weight: 300;
+  color: var(--text-muted);
+}
+
+.station-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.station-clock {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* Live tag: keeps its space while hidden so the clock never jumps. */
+.live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--q-smoke);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 160ms var(--ease), visibility 0s linear 160ms;
+}
+
+.live-tag.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 160ms var(--ease);
+}
+
+.live-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--q-gradient);
+  animation: station-pulse 1.8s var(--ease) infinite;
+}
+
+/* ---- Main: camera stage + side panel -------------------------------------- */
+.station-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(360px, 30vw, 500px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 32px;
+  min-height: 0;
+  padding-block: 8px 20px;
+}
+
+.station-stage {
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+/* Rounded camera frame. The padding is the ring: neutral by default,
+   brand gradient when verified. Fills the stage, never taller than 4:3
+   and never wider than 16:10, so the face is never cropped hard. */
+.station-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  width: min(100cqw, 100cqh * 1.6);
+  height: min(100cqh, 100cqw * 0.75);
+  padding: var(--ring-width);
+  border-radius: var(--r-frame);
+  background-color: var(--surface-3);
+  box-shadow: var(--shadow-1);
+  transition: background-color 240ms var(--ease), box-shadow 240ms var(--ease);
+}
+
+.station-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--q-gradient);
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+}
+
+.station-frame__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--r-frame) - var(--ring-width));
+  background: var(--video-bg);
+}
+
+.station-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--text-dim);
+  font-size: var(--fs-md);
+}
+
+.station-placeholder .icon {
+  width: 40px;
+  height: 40px;
+}
+
+/* Mirrored like a mirror for the person in front of it (display only;
+   frames sent to the server are drawn from the raw video). */
+.station-frame__inner video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+/* ---- Side panel ----------------------------------------------------------- */
+.station-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.station-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* State line: one short label per state, chosen by CSS. */
+.station-state {
+  --dot: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.station-state__dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+.station-state__text {
+  display: none;
+}
+
+body:not([data-state]) .state-starting,
+body[data-state="waiting"] .state-waiting,
+body[data-state="unknown"] .state-unknown,
+body[data-state="calibrating"] .state-calibrating,
+body[data-state="verified"] .state-verified,
+body[data-state="error"] .state-error {
+  display: inline;
+}
+
+.station-name {
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: clamp(38px, min(3.6vw, 6.4vh), 68px);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  transition: color 240ms var(--ease);
+}
+
+.station-hint {
+  max-width: 42ch;
+  color: var(--text-muted);
+  font-size: var(--fs-lg);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* Status rows sit at the bottom of the panel, so identity text changes
+   never push them around. */
+.station-stats {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+}
+
+.station-stat {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 16px;
+  padding-block: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.station-stat__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  transition: color 240ms var(--ease);
+}
+
+.station-stat__icon .icon {
+  width: 22px;
+  height: 22px;
+}
+
+.station-stat__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.station-stat__label {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.station-stat__value {
+  color: var(--text);
+  font-size: clamp(19px, min(1.35vw, 2.4vh), 24px);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+
+/* Reserves one line so the phone detail appearing does not shift the panel. */
+.station-stat__detail {
+  display: block;
+  min-height: 1.35em;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+
+/* System status line */
+.station-system {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  line-height: 20px;
+}
+
+.station-system__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background-color 240ms var(--ease), box-shadow 240ms var(--ease);
+}
+
+.station-system__label {
+  flex: none;
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.station-status {
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  line-height: 20px;
+  overflow-wrap: break-word;
+}
+
+/* ---- Footer: the "SWITCH ON" signature ------------------------------------ */
+.station-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding-block: 0 22px;
+}
+
+.station-tagline {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.station-tagline__text {
+  color: var(--q-smoke);
+  font-family: var(--font-tagline);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .18em;
+}
+
+/* Toggle-switch motif: off until the person is verified. */
+.station-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  background-color: var(--surface-3);
+}
+
+.station-switch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--q-gradient);
+  opacity: 0;
+  transition: opacity 240ms var(--ease);
+}
+
+.station-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--text-dim);
+  transition: transform 240ms var(--ease), background-color 240ms var(--ease), box-shadow 240ms var(--ease);
+}
+
+.station-footnote {
+  color: var(--text-dim);
+  font-size: var(--fs-sm);
+}
+
+/* ---- States --------------------------------------------------------------- */
+
+/* Verified: the one gradient moment (ring, glow, switch on). */
+body[data-state="verified"] .station-frame {
+  box-shadow: -28px 28px 90px -40px var(--glow-green), 28px 28px 90px -40px var(--glow-teal);
+}
+
+body[data-state="verified"] .station-frame::before {
+  opacity: 1;
+}
+
+body[data-state="verified"] .station-state {
+  --dot: var(--q-gradient);
+  color: var(--text);
+}
+
+body[data-state="verified"] .station-stat__icon {
+  color: var(--live);
+}
+
+body[data-state="verified"] .station-switch::before {
+  opacity: 1;
+}
+
+body[data-state="verified"] .station-switch::after {
+  transform: translateX(20px);
+  background-color: var(--q-night);
+  box-shadow: inset 0 0 0 4px var(--q-night), inset 0 0 0 6px var(--q-teal);
+}
+
+/* Calibrating: recognised, gaze still settling; the ring is switching on. */
+body[data-state="calibrating"] .station-frame::before {
+  opacity: .45;
+  animation: station-ring-breathe 2.4s var(--ease) infinite alternate;
+}
+
+body[data-state="calibrating"] .station-state {
+  --dot: var(--live);
+  color: var(--text);
+}
+
+body[data-state="calibrating"] .station-state__dot {
+  animation: station-pulse 1.8s var(--ease) infinite;
+}
+
+/* Unknown face: a quiet amber ring and an amber state line. */
+body[data-state="unknown"] .station-frame {
+  background-color: var(--ring-unknown);
+}
+
+body[data-state="unknown"] .station-state {
+  --dot: var(--warn);
+  color: var(--warn);
+}
+
+body[data-state="unknown"] .station-hint {
+  color: var(--text);
+}
+
+body[data-state="unknown"] .station-name,
+body[data-state="calibrating"] .station-name,
+body[data-state="verified"] .station-name {
+  color: var(--text);
+}
+
+/* Error (station token missing, no retry): red state line and system dot,
+   the hint carries the fix. Ring and switch stay neutral. */
+body[data-state="error"] .station-state {
+  --dot: var(--bad);
+  color: var(--bad);
+}
+
+body[data-state="error"] .station-hint {
+  color: var(--text);
+}
+
+body[data-state="error"] .station-system__dot {
+  background: var(--bad);
+  box-shadow: 0 0 0 3px var(--bad-bg);
+}
+
+/* Connection open: system dot turns green. */
+body:has(#station-live-tag.visible) .station-system__dot {
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-bg);
+}
+
+/* Disconnected or retrying (camera, health check, socket): drop back to
+   neutral until live again. Not applied to the "error" state, which never
+   retries. Kept as separate rules so browsers without :has() simply skip them. */
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-state__text {
+  display: none;
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .state-offline {
+  display: inline;
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-state {
+  --dot: var(--text-dim);
+  color: var(--text-muted);
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-state__dot {
+  animation: none;
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-name,
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-hint {
+  color: var(--text-muted);
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-frame {
+  background-color: var(--surface-3);
+  box-shadow: var(--shadow-1);
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-frame::before {
+  opacity: 0;
+  animation: none;
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-stat__icon {
+  color: var(--text-muted);
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-switch::before {
+  opacity: 0;
+}
+
+body[data-state]:not([data-state="error"]):has(#station-live-tag:not(.visible)) .station-switch::after {
+  transform: none;
+  background-color: var(--text-dim);
+  box-shadow: none;
+}
+
+/* ---- Motion --------------------------------------------------------------- */
+@keyframes station-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--glow-teal);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes station-ring-breathe {
+  from {
+    opacity: .2;
+  }
+  to {
+    opacity: .65;
+  }
+}
+
+/* ---- Shorter desktop screens (for example 1366x768) ------------------------ */
+@media (min-width: 901px) and (max-height: 820px) {
+  .station-header {
+    padding-block: 14px 12px;
+  }
+
+  .station-logo {
+    width: 140px;
+  }
+
+  .station-product {
+    font-size: 19px;
+  }
+
+  .station-clock {
+    font-size: 36px;
+  }
+
+  .station-main {
+    gap: 24px;
+    padding-block: 4px 14px;
+  }
+
+  .station-panel {
+    gap: 18px;
+    padding: 22px 24px;
+  }
+
+  .station-identity {
+    gap: 10px;
+  }
+
+  .station-hint {
+    font-size: 16px;
+  }
+
+  .station-stat {
+    grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 14px;
+    padding-block: 9px;
+  }
+
+  .station-stat__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .station-stat__icon .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .station-system {
+    padding-top: 12px;
+  }
+
+  .station-footer {
+    padding-block: 0 14px;
+  }
+}
+
+/* ---- Narrow screens: panel stacks below the camera ------------------------- */
+@media (max-width: 900px) {
+  :root {
+    --gutter: 16px;
+    --r-frame: 22px;
+    --ring-width: 4px;
+  }
+
+  .station-shell {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .station-header {
+    gap: 12px 16px;
+    padding-block: 16px 12px;
+  }
+
+  .station-brand {
+    gap: 16px;
+  }
+
+  .station-logo {
+    width: 132px;
+  }
+
+  .station-product {
+    padding-left: 16px;
+    font-size: 18px;
+  }
+
+  .station-header__meta {
+    gap: 14px;
+  }
+
+  .station-clock {
+    font-size: 34px;
+  }
+
+  .station-main {
+    flex: 1 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 16px;
+    padding-block: 4px 16px;
+  }
+
+  .station-stage {
+    display: block;
+    container-type: normal;
+  }
+
+  .station-frame {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .station-panel {
+    gap: 24px;
+    overflow: visible;
+    padding: 24px 20px;
+  }
+
+  .station-stats {
+    margin-top: 0;
+  }
+
+  .station-name {
+    font-size: clamp(32px, 7.5vw, 48px);
+  }
+
+  .station-hint {
+    font-size: 16px;
+  }
+
+  .station-stat__value {
+    font-size: 20px;
+  }
+
+  .station-footer {
+    padding-block: 0 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .station-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .station-logo {
+    width: 118px;
+  }
+
+  .station-product {
+    padding-left: 0;
+    border-left: 0;
+    font-size: 16px;
+  }
+
+  .station-clock {
+    font-size: 30px;
+  }
+
+  .station-panel {
+    padding: 20px 16px;
+  }
+
+  .station-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
